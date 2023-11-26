@@ -23,13 +23,8 @@ var (
 var tgBotCmd = &cobra.Command{
 	Use:     "tgBot",
 	Aliases: []string{"start"},
-	Short:   "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short:   "Telegram Bot",
+	Long:    "A Telegram bot built with Golang and telebot.v3.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("tgBot %s started", appVersion)
 		tgBot, err := tele.NewBot(tele.Settings{
@@ -43,14 +38,35 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		tgBot.Handle(tele.OnText, func(m tele.Context) error {
-			log.Print(m.Message().Payload, m.Text())
-
+		tgBot.Handle(tele.OnText, func(c tele.Context) error {
+			handleTextMessage(tgBot, c.Message())
 			return err
 		})
 
+		fmt.Println("Bot is now running. Press Ctrl+C to exit.")
 		tgBot.Start()
 	},
+}
+
+func handleTextMessage(tgBot *tele.Bot, m *tele.Message) {
+	switch m.Text {
+	case "/start":
+		tgBot.Send(m.Sender, "Вітаю! Я тут, щоб вам допомогти. Відправте /help, щоб побачити доступні команди.")
+	case "/time":
+		tgBot.Send(m.Sender, fmt.Sprintf("Поточний час: %s", time.Now().Format("15:04:05")))
+	case "/version":
+		tgBot.Send(m.Sender, fmt.Sprintf("tgBot %s", appVersion))
+	case "/help":
+		tgBot.Send(m.Sender,
+			`Доступні команди:
+			/start - Початок роботи з ботом
+			/time - Поточний час
+			/version - Версія бота
+			/help - Виведення списку команд
+		`)
+	default:
+		tgBot.Send(m.Sender, fmt.Sprintf("Ти написав: %s", m.Text))
+	}
 }
 
 func init() {
