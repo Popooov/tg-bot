@@ -23,7 +23,7 @@
     package cmd
 
     var (
-        TbotToken = os.Getenv("ВАШ_ТОКЕН_БОТА")
+        TbotToken = os.Getenv("TELE_TOKEN")
     )
     ```
 
